@@ -176,10 +176,11 @@ const DEFAULT_CATS = [
   {id:"osoby", name:"Przelewy do osób", color:"#c4708f", type:"expense", kw:["przelew na telefon"]},
   {id:"bank", name:"Opłaty bankowe", color:"#8e8e8e", type:"expense", kw:["serwis tekstowy","opłata za sms","opłata za kartę","opłata za prowadzenie","prowizja"]},
   {id:"inne", name:"Inne", color:"#9aa5a1", type:"expense", kw:[]},
-  {id:"przelewy", name:"Przelewy własne i oszczędności", color:"#b0b8b5", type:"transfer", kw:["przelew własny","przelew wewnętrzny","przelew w ramach konta","między rachunkami","na rachunek własny","rachunku oszczędnościowego","lokata","oszczędności","konto oszczędnościowe","revolut","xtb"]},
+  {id:"przelewy", name:"Przelewy własne", color:"#7d8ea3", type:"transfer", kw:["przelew własny","przelew wewnętrzny","przelew w ramach konta","między rachunkami","na rachunek własny","revolut"]},
+  {id:"inwestycje", name:"Inwestycje i oszczędności", color:"#3a8fb7", type:"transfer", kw:["xtb","rachunku oszczędnościowego","konto oszczędnościowe","oszczędności","lokata","obligacje","etoro","trading212"]},
   {id:"przychody", name:"Wpływy", color:"#2f7d4f", type:"income", kw:["wynagrodzenie","pensja","wypłata","premia"]}
 ];
-function defaultSettings(){ return {v:2, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[]}; }
+function defaultSettings(){ return {v:3, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[]}; }
 
 function norm(s){
   return String(s||"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
@@ -426,7 +427,7 @@ async function restoreBackup(f){
     const data = JSON.parse(await f.text());
     if(!data || data.app!=="budzet-domowy" || !data.settings) throw new Error("zly plik");
     confirmBox("Wczytać kopię z "+(data.savedAt?new Date(data.savedAt).toLocaleDateString("pl-PL"):"pliku")+"? Obecne dane w telefonie zostaną zastąpione.", "Wczytaj kopię", ()=>{
-      S.demo = false; S.settings = mergeSettings(data.settings); S.months = data.months||{};
+      S.demo = false; S.settings = mergeSettings(data.settings); S.months = data.months||{}; applyMigration();
       S.month = allMonths().slice(-1)[0]||null; writeLocal(); location.hash="przeglad"; render(); flash("Kopia wczytana.");
     });
   }catch(e){ flash("To nie jest plik kopii z tej aplikacji."); }
@@ -449,12 +450,14 @@ function start(){
   if(data && data.settings){
     S.settings = mergeSettings(data.settings); S.months = data.months||{}; S.demo = false;
     S.month = allMonths().slice(-1)[0]||null;
+    applyMigration();
   } else enterDemo();
   S.loaded = true;
   try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   render();
   if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 }
+function applyMigration(){ if(S.settings && S.settings._recat){ delete S.settings._recat; if(!S.demo){ recatAll(); save("settings"); } } }
 function mergeSettings(s){
   const d = defaultSettings();
   let cats = Array.isArray(s.cats)&&s.cats.length ? s.cats : d.cats;
@@ -465,7 +468,17 @@ function mergeSettings(s){
       else { const set = new Set(c.kw||[]); for(const k of dc.kw) set.add(k); if(c.id==="przychody") set.delete("zwrot"); c.kw=[...set]; if(c.id==="przelewy"&&c.name==="Przelewy własne") c.name=dc.name; }
     }
   }
-  return { v:2, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[], balance: s.balance||null };
+  let recat = false;
+  if((s.v||1) < 3){
+    const inv = d.cats.find(c=>c.id==="inwestycje");
+    if(!cats.some(c=>c.id==="inwestycje")){ const at=cats.findIndex(c=>c.id==="przelewy"); cats.splice(at<0?cats.length:at+1,0,JSON.parse(JSON.stringify(inv))); }
+    const pr = cats.find(c=>c.id==="przelewy");
+    if(pr){ pr.kw=(pr.kw||[]).filter(k=>!inv.kw.includes(k)); if(/oszcz/i.test(pr.name)) pr.name="Przelewy własne"; if(pr.color==="#b0b8b5") pr.color="#7d8ea3"; }
+    recat = true;
+  }
+  const out = { v:3, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[], balance: s.balance||null };
+  if(recat) out._recat = true;
+  return out;
 }
 function enterDemo(){
   S.demo = true; S.settings = defaultSettings(); S.months = {};
@@ -493,15 +506,16 @@ window.addEventListener("hashchange",()=>{ route(); render(); window.scrollTo(0,
 // ---------- obliczenia ----------
 function monthStats(ym){
   const items = S.months[ym]||[];
-  const per = {}; let spent=0, income=0;
+  const per = {}, perT = {}; let spent=0, income=0, outAll=0;
   for(const t of items){
     const c = catById(t.cat);
+    if(t.amount<0) outAll -= t.amount;
     if(c.type==="income"){ income += t.amount; continue; }
-    if(c.type==="transfer") continue;
+    if(c.type==="transfer"){ perT[c.id] = (perT[c.id]||0) - t.amount; continue; }
     per[c.id] = (per[c.id]||0) - t.amount;
     spent -= t.amount;
   }
-  return {per, spent, income, count: items.length};
+  return {per, perT, spent, income, outAll, count: items.length};
 }
 
 // ---------- widoki ----------
@@ -579,13 +593,26 @@ function viewOverview(){
     <div class="tile"><div class="lbl">Wpływy</div><div class="val">${PLN0.format(st.income)}</div></div>
     <div class="tile"><div class="lbl">Bilans miesiąca</div><div class="val" style="color:${bal>=0?"var(--good)":"var(--crit)"}">${bal>=0?"+":""}${PLN0.format(bal)}</div></div>
   </div>
+  ${Math.abs(st.outAll-st.spent)>0.004?`<p class="muted small" style="margin:0">Łącznie wyszło z konta <b class="num">${PLN.format(st.outAll)}</b> (tak liczy bank). Wydatki nie obejmują przelewów własnych i inwestycji ani zakupów, za które dostałeś zwrot.</p>`:""}
   ${toCheck?`<div class="banner row spread"><span><b>${toCheck}</b> ${toCheck===1?"transakcja nie ma":"transakcji nie ma"} kategorii (są w „Inne”).</span><span class="row">${S.sample&&!S.demo?`<button class="btn primary" data-act="ai" ${S.aiBusy?"disabled":""}>${S.aiBusy?"Claude przypisuje…":"Przypisz z Claude"}</button>`:""}<button class="btn" data-act="showinne">Przypisz ręcznie</button></span></div>`:""}
   <div class="card">
     <h2>Na co poszły pieniądze</h2>
     ${ent.length?`<div class="split">${donut(st.per, st.spent)}<div class="catlist">${rows}</div></div>`:`<p class="muted">W tym miesiącu nie ma wydatków.</p>`}
     <p class="muted small">Kliknij kategorię, żeby zobaczyć jej transakcje. Limity miesięczne ustawisz w zakładce <a href="#kategorie">Kategorie</a>.</p>
   </div>
+  ${transferCard(st)}
   ${trend}`;
+}
+function transferCard(st){
+  const ent = Object.entries(st.perT).filter(([,v])=>Math.abs(v)>0.004).sort((a,b)=>b[1]-a[1]);
+  if(!ent.length) return "";
+  return `<div class="card">
+    <h2>Przelane i odłożone</h2>
+    <p class="muted small" style="margin:0">Te pieniądze dalej są Twoje, dlatego nie liczą się do wydatków. Na minusie są wpłaty, na plusie wypłaty z powrotem na konto.</p>
+    <div class="catlist">${ent.map(([id,v])=>{ const c=catById(id); return `<div class="catrow" data-act="opencat" data-id="${c.id}" role="button" tabindex="0">
+      <span class="name"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>
+      <span class="num">${v>0?"−":"+"}${PLN.format(Math.abs(v))}</span></div>`; }).join("")}</div>
+  </div>`;
 }
 
 function catOptions(sel, withAll){
