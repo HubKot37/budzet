@@ -546,7 +546,7 @@ function monthBar(){
   </div>`;
 }
 
-function donut(per, total){
+function donut(per, total, label){
   const R=70, C=2*Math.PI*R; let off=0, segs="";
   const entries = Object.entries(per).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   for(const [id,v] of entries){
@@ -556,7 +556,7 @@ function donut(per, total){
   }
   return `<svg viewBox="0 0 180 180" width="100%" role="img" aria-label="Podział wydatków">
     <circle r="${R}" cx="90" cy="90" fill="none" stroke="var(--bg)" stroke-width="22"/>${segs}
-    <text x="90" y="86" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--body)">wydatki</text>
+    <text x="90" y="86" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--body)">${esc(label||"wydatki")}</text>
     <text x="90" y="106" text-anchor="middle" font-size="17" font-weight="700" fill="var(--ink)" font-family="var(--display)">${esc(PLN0.format(total))}</text></svg>`;
 }
 
@@ -606,12 +606,16 @@ function viewOverview(){
 function transferCard(st){
   const ent = Object.entries(st.perT).filter(([,v])=>Math.abs(v)>0.004).sort((a,b)=>b[1]-a[1]);
   if(!ent.length) return "";
+  const pos = Object.fromEntries(ent.filter(([,v])=>v>0));
+  const total = Object.values(pos).reduce((a,v)=>a+v,0);
+  const rows = ent.map(([id,v])=>{ const c=catById(id); return `<div class="catrow" data-act="opencat" data-id="${c.id}" role="button" tabindex="0">
+      <span class="name"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>
+      <span class="num"><span class="muted small">${v>0?"wpłaty":"wypłaty"}</span> ${PLN.format(Math.abs(v))}</span>
+      ${v>0&&total>0?`<div class="bar"><i style="width:${v/total*100}%;background:${c.color}"></i></div>`:""}</div>`; }).join("");
   return `<div class="card">
     <h2>Przelane i odłożone</h2>
-    <p class="muted small" style="margin:0">Te pieniądze dalej są Twoje, dlatego nie liczą się do wydatków. Na minusie są wpłaty, na plusie wypłaty z powrotem na konto.</p>
-    <div class="catlist">${ent.map(([id,v])=>{ const c=catById(id); return `<div class="catrow" data-act="opencat" data-id="${c.id}" role="button" tabindex="0">
-      <span class="name"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>
-      <span class="num">${v>0?"−":"+"}${PLN.format(Math.abs(v))}</span></div>`; }).join("")}</div>
+    <p class="muted small" style="margin:0">Te pieniądze dalej są Twoje, dlatego nie liczą się do wydatków. „Wpłaty” to pieniądze przelane z konta, „wypłaty” to pieniądze, które wróciły na konto.</p>
+    ${total>0?`<div class="split">${donut(pos, total, "wpłaty")}<div class="catlist">${rows}</div></div>`:`<div class="catlist">${rows}</div>`}
   </div>`;
 }
 
