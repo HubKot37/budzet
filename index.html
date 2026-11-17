@@ -158,24 +158,26 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 const DEFAULT_CATS = [
   {id:"paliwo", name:"Paliwo", color:"#e07b39", type:"expense", kw:["orlen","bp","shell","circle k","lotos","moya","amic","statoil","avia","huzar","stacja paliw","lpg","paliwo"]},
   {id:"spozywcze", name:"Spożywcze", color:"#2f9e6b", type:"expense", kw:["biedronka","lidl","żabka","zabka","auchan","carrefour","kaufland","netto","dino","aldi","stokrotka","lewiatan","polomarket","intermarche","spar","delikatesy","groszek","topaz","chata polska","freshmarket","frisco","piekarnia","mięsny","warzywniak","sklep spożywczy","abc"]},
-  {id:"dom", name:"Dom i opłaty", color:"#3d7cc9", type:"expense", kw:["pge","tauron","enea","energa","innogy","e.on","eon","pgnig","gazownicza","czynsz","wspólnota","spółdzielnia","wodociągi","mpwik","pwik","ścieki","odpady","śmieci","podatek od nieruchomości","prąd","energia","ogrzewanie","fortum","veolia","opał","węgiel"]},
+  {id:"dom", name:"Dom i opłaty", color:"#3d7cc9", type:"expense", kw:["pge","tauron","enea","energa","innogy","e.on","eon","pgnig","gazownicza","czynsz","wspólnota","spółdzielnia","wodociągi","mpwik","pwik","ścieki","odpady","śmieci","podatek od nieruchomości","prąd","energia","energetyka","ogrzewanie","fortum","veolia","opał","węgiel"]},
   {id:"telefon", name:"Telefon i internet", color:"#6a5acd", type:"expense", kw:["orange","play","p4","plus","polkomtel","t-mobile","upc","vectra","netia","inea","polsat box","multimedia polska","heyah","nju","virgin mobile","abonament"]},
   {id:"auto", name:"Auto", color:"#8a6d3b", type:"expense", kw:["myjnia","warsztat samochodowy","mechanik","wulkanizacja","opony","autostrada","e-toll","stalexport","parking","inter cars","intercars","auto części","stacja kontroli","przegląd techniczny","autoserwis"]},
   {id:"warsztat", name:"Warsztat i materiały", color:"#b5542c", type:"expense", kw:["castorama","leroy merlin","obi","bricomarche","psb","mrówka","jula","hornbach","merkury market","häfele","hafele","blum","egger","kronopol","swiss krono","tartak","drewno","sklejka","płyty meblowe","okucia","galanteria meblowa","makita","festool","dewalt","würth","wurth","berner","narzędzia"]},
   {id:"miasto", name:"Jedzenie na mieście", color:"#d1497a", type:"expense", kw:["mcdonald","mcdonalds","kfc","burger king","pizzeria","pizza","restauracja","bistro","bar","pyszne","glovo","uber eats","wolt","kebab","starbucks","costa","kawiarnia","sushi","pierogarnia","north fish","subway","max premium burgers"]},
   {id:"zdrowie", name:"Zdrowie", color:"#1aa3a3", type:"expense", kw:["apteka","apteki","doz","ziko","gemini","super-pharm","lekarz","medicover","luxmed","lux med","enel-med","dentysta","stomatolog","przychodnia","optyk","szpital","rehabilitacja"]},
   {id:"zakupy", name:"Zakupy", color:"#c08a1e", type:"expense", kw:["allegro","amazon","temu","aliexpress","shein","zalando","rossmann","hebe","action","pepco","media expert","rtv euro agd","euro-net","x-kom","morele","mediamarkt","media markt","ikea","jysk","decathlon","sinsay","reserved","cropp","house","ccc","deichmann","empik","smyk","tk maxx","kik","half price"]},
-  {id:"rozrywka", name:"Rozrywka i subskrypcje", color:"#9b59b6", type:"expense", kw:["netflix","spotify","youtube","disney","hbo","max.com","apple.com","itunes","google play","playstation","xbox","steam","canal+","player.pl","cinema city","multikino","helios","eventim","ebilet","openai","chatgpt","anthropic","claude.ai"]},
+  {id:"rozrywka", name:"Rozrywka i subskrypcje", color:"#9b59b6", type:"expense", kw:["netflix","spotify","youtube","disney","hbo","max.com","apple.com","itunes","google play","playstation","xbox","steam","canal+","player.pl","cinema city","multikino","helios","eventim","ebilet","openai","chatgpt","anthropic","claude.ai","steampowered","casino","totalcasino","lotto","sts","fortuna","superbet","betclic"]},
   {id:"transport", name:"Transport", color:"#4a90a4", type:"expense", kw:["pkp","intercity","koleo","polregio","jakdojade","mpk","ztm","bolt","uber","freenow","flixbus","skycash","mobilet","ryanair","wizz air","lot polish"]},
   {id:"ubezpieczenia", name:"Ubezpieczenia", color:"#5d7a8c", type:"expense", kw:["pzu","warta","allianz","hestia","ergo hestia","generali","link4","uniqa","compensa","aviva","nationale-nederlanden","ubezpieczenie","polisa"]},
   {id:"kredyty", name:"Kredyty i raty", color:"#a0522d", type:"expense", kw:["rata","raty","kredyt","pożyczka","leasing","spłata"]},
   {id:"podatki", name:"Podatki i ZUS", color:"#7f8c8d", type:"expense", kw:["zus","urząd skarbowy","mikrorachunek","podatek","pit","vat"]},
   {id:"gotowka", name:"Wypłaty gotówki", color:"#95a5a6", type:"expense", kw:["bankomat","atm","wypłata gotówki","wypłata z bankomatu"]},
+  {id:"osoby", name:"Przelewy do osób", color:"#c4708f", type:"expense", kw:["przelew na telefon"]},
+  {id:"bank", name:"Opłaty bankowe", color:"#8e8e8e", type:"expense", kw:["serwis tekstowy","opłata za sms","opłata za kartę","opłata za prowadzenie","prowizja"]},
   {id:"inne", name:"Inne", color:"#9aa5a1", type:"expense", kw:[]},
-  {id:"przelewy", name:"Przelewy własne", color:"#b0b8b5", type:"transfer", kw:["przelew własny","przelew wewnętrzny","na rachunek własny","lokata","oszczędności","konto oszczędnościowe","revolut"]},
-  {id:"przychody", name:"Wpływy", color:"#2f7d4f", type:"income", kw:["wynagrodzenie","pensja","wypłata","premia","zwrot"]}
+  {id:"przelewy", name:"Przelewy własne i oszczędności", color:"#b0b8b5", type:"transfer", kw:["przelew własny","przelew wewnętrzny","przelew w ramach konta","między rachunkami","na rachunek własny","rachunku oszczędnościowego","lokata","oszczędności","konto oszczędnościowe","revolut","xtb"]},
+  {id:"przychody", name:"Wpływy", color:"#2f7d4f", type:"income", kw:["wynagrodzenie","pensja","wypłata","premia"]}
 ];
-function defaultSettings(){ return {v:1, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[]}; }
+function defaultSettings(){ return {v:2, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[]}; }
 
 function norm(s){
   return String(s||"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
@@ -187,7 +189,7 @@ function kwRe(kw){
   if(!r){ r = new RegExp("(^|[^a-z0-9])"+escRe(norm(kw))+"(?=$|[^a-z0-9])"); reCache.set(kw,r); }
   return r;
 }
-const STOP = new Set(["nr","sp","z","o","oo","sa","s","a","pl","ul","karta","karty","karte","platnosc","zakup","przy","uzyciu","transakcja","bezgotowkowa","przelew","blik","pln","eur","usd","w","na","do","od","i","tytul","tytulem","odbiorca","nadawca","zrealizowana","kartowa","zaksiegowana","operacja","oplata","faktura","fv"]);
+const STOP = new Set(["nr","sp","z","o","oo","sa","s","a","pl","ul","karta","karty","karte","platnosc","zakup","przy","uzyciu","transakcja","bezgotowkowa","przelew","blik","pln","eur","usd","w","na","do","od","i","tytul","tytulem","odbiorca","nadawca","zrealizowana","kartowa","zaksiegowana","operacja","oplata","faktura","fv","www","com","http","https","kasa","jmp","pp","spolka","akcyjna","zoo"]);
 function merchantKey(tx){
   const src = (tx.cp && tx.cp.trim()) ? tx.cp : tx.desc;
   const words = norm(src).replace(/[^a-z\s]/g," ").split(" ").filter(w=>w.length>=2 && !STOP.has(w));
@@ -197,13 +199,13 @@ function categorize(tx, st){
   const key = merchantKey(tx);
   if(key && st.learned[key] && st.cats.some(c=>c.id===st.learned[key])) return st.learned[key];
   const text = norm((tx.cp||"")+" "+(tx.desc||""));
-  const inc = tx.amount > 0;
+  const inc = tx.amount > 0 && !/(^|[^a-z])zwrot (platnosci|transakcji|zakupu|towaru)/.test(text);
   for(const c of st.cats){
     if(!inc && c.type==="income") continue;
     if(inc && c.type==="expense") continue;
     for(const k of (c.kw||[])){ if(k && kwRe(k).test(text)) return c.id; }
   }
-  return inc ? "przychody" : "inne";
+  return tx.amount > 0 && inc ? "przychody" : "inne";
 }
 
 function decodeBuffer(buf){
@@ -280,14 +282,31 @@ function findHeader(rows){
   }
   return bestScore>=2 ? best : -1;
 }
-function guessMap(header, sample){
+function detectCA(header, sample){
   const n = header.map(norm);
-  const map = {date:-1, amount:-1, debit:-1, credit:-1, cp:-1, desc:[]};
-  const find = (re, not) => n.findIndex((c,i)=>re.test(c) && !(not&&not.test(c)));
+  const at = name => n.indexOf(name);
+  if(at("miejsce transakcji")<0 || at("kategoria transakcji")<0 || at("data ksiegowania")<0) return null;
+  const kw = n.map((c,i)=>c==="kwota"?i:-1).filter(i=>i>-1);
+  let amount=-1, best=-1;
+  for(const i of kw){ const c = sample.filter(r=>!isNaN(parseAmount(r[i]))).length; if(c>best){best=c;amount=i;} }
+  return {preset:"ca", date:at("data operacji"), date2:at("data ksiegowania"), amount, debit:-1, credit:-1, cp:-1,
+    www:at("adres www sklepu"), place:at("miejsce transakcji"), payee:at("odbiorca"), payer:at("nadawca"), op:at("operacja"),
+    desc:[at("kategoria transakcji"), at("tytul"), at("opis")].filter(i=>i>-1)};
+}
+function guessMap(header, sample){
+  const ca = detectCA(header, sample); if(ca) return ca;
+  const n = header.map(norm);
+  const map = {date:-1, date2:-1, amount:-1, debit:-1, credit:-1, cp:-1, desc:[]};
+  const fill = (i, test) => sample.filter(r=>test(r[i]||"")).length;
+  const isAmt = v => !isNaN(parseAmount(v));
+  const bestOf = (re, not, test) => { let b=-1,bs=-1; n.forEach((c,i)=>{ if(re.test(c) && !(not&&not.test(c))){ const f=fill(i,test); if(f>bs){bs=f;b=i;} } }); return b; };
+  const find = (re, not) => bestOf(re, not, v=>v!=="");
   const pref = n.findIndex(c=>/^data (operacji|transakcji)/.test(c));
-  map.date = pref>-1 ? pref : find(HDR.date);
-  map.amount = find(HDR.amount, HDR.skip);
-  if(map.amount<0){ map.debit=find(HDR.debit,HDR.skip); map.credit=find(HDR.credit,HDR.skip); }
+  map.date = pref>-1 && fill(pref,parseDate)>=sample.length/2 ? pref : bestOf(HDR.date, null, parseDate);
+  n.forEach((c,i)=>{ if(i!==map.date && HDR.date.test(c) && map.date2<0 && fill(i,parseDate)>0) map.date2=i; });
+  map.amount = bestOf(HDR.amount, HDR.skip, isAmt);
+  if(map.amount>-1 && fill(map.amount,isAmt)===0) map.amount=-1;
+  if(map.amount<0){ map.debit=bestOf(HDR.debit,HDR.skip,isAmt); map.credit=bestOf(HDR.credit,HDR.skip,isAmt); }
   map.cp = find(HDR.cp, HDR.skip);
   n.forEach((c,i)=>{ if(HDR.desc.test(c) && !HDR.skip.test(c) && i!==map.cp && i!==map.date && i!==map.amount) map.desc.push(i); });
   // fallback by content
@@ -314,7 +333,7 @@ function hash(str){
 function buildTxs(rows, map){
   const out=[]; let skipped=0; const seen={};
   for(const r of rows){
-    const date = parseDate(r[map.date]);
+    const date = parseDate(r[map.date]) || (map.date2>-1 ? parseDate(r[map.date2]) : null);
     let amount;
     if(map.amount>-1) amount = parseAmount(r[map.amount]);
     else {
@@ -322,8 +341,14 @@ function buildTxs(rows, map){
       amount = (isNaN(cr)?0:Math.abs(cr)) - (isNaN(db)?0:Math.abs(db));
     }
     if(!date || isNaN(amount) || amount===0){ skipped++; continue; }
-    const cp = map.cp>-1 ? (r[map.cp]||"") : "";
-    const desc = map.desc.map(i=>r[i]).filter(v=>v && v!==cp).join(" · ");
+    let cp = map.cp>-1 ? (r[map.cp]||"") : "";
+    if(map.preset==="ca"){
+      const g = i => i>-1 ? (r[i]||"").trim() : "";
+      cp = g(map.www).replace(/^https?:\/\//i,"").replace(/^www\./i,"") || g(map.place) || (amount>0 ? g(map.payer) : g(map.payee)) || g(map.op);
+    }
+    const seenD = new Set();
+    const desc = map.desc.map(i=>(r[i]||"").replace(/BLIK \w+ Autoryzacja trans\. oryg\. lub zwrotu/i,"").trim())
+      .filter(v=>{ if(!v || v===cp) return false; const k=norm(v); if(seenD.has(k)) return false; seenD.add(k); return true; }).join(" · ");
     const base = date+"|"+amount.toFixed(2)+"|"+norm(cp)+"|"+norm(desc);
     seen[base]=(seen[base]||0)+1;
     out.push({id: hash(base+"#"+seen[base]), date, amount: Math.round(amount*100)/100, cp: cp.slice(0,120), desc: desc.slice(0,240)});
@@ -413,7 +438,15 @@ function start(){
 }
 function mergeSettings(s){
   const d = defaultSettings();
-  return { v:1, cats: Array.isArray(s.cats)&&s.cats.length ? s.cats : d.cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[] };
+  let cats = Array.isArray(s.cats)&&s.cats.length ? s.cats : d.cats;
+  if((s.v||1) < 2){
+    for(const dc of d.cats){
+      const c = cats.find(x=>x.id===dc.id);
+      if(!c){ const at = cats.findIndex(x=>x.id==="inne"); cats.splice(at<0?cats.length:at,0,dc); }
+      else { const set = new Set(c.kw||[]); for(const k of dc.kw) set.add(k); if(c.id==="przychody") set.delete("zwrot"); c.kw=[...set]; if(c.id==="przelewy"&&c.name==="Przelewy własne") c.name=dc.name; }
+    }
+  }
+  return { v:2, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[] };
 }
 function enterDemo(){
   S.demo = true; S.settings = defaultSettings(); S.months = {};
@@ -607,6 +640,7 @@ function viewMapping(){
   const prev = txs.slice(0,8).map(t=>{ const c=catById(categorize(t,S.settings)); return `<tr><td class="num">${t.date}</td><td>${esc((t.cp||t.desc).slice(0,48))}</td><td class="r num">${PLN.format(t.amount)}</td><td><span class="dot" style="display:inline-block;background:${c.color}"></span> ${esc(c.name)}</td></tr>`; }).join("");
   return `<div class="card">
     <div class="row spread"><h2>${esc(I.name)}</h2><button class="btn ghost" data-act="cancelimp">Anuluj</button></div>
+    ${m.preset==="ca"?`<div class="row spread"><span class="small">Rozpoznałem format <b>Credit Agricole</b> – kolumny są ustawione automatycznie.</span><button class="btn ghost small" data-act="manualmap">Ustaw ręcznie</button></div>`:`
     <p class="muted small">Sprawdź, czy kolumny są dobrze rozpoznane. Ustawienia zapamiętam na kolejne importy z tego banku.</p>
     <div class="maps">
       <label for="m-date">Data<select id="m-date" data-map="date">${opts(m.date)}</select></label>
@@ -616,7 +650,7 @@ function viewMapping(){
       <label for="m-cp">Odbiorca / nadawca<select id="m-cp" data-map="cp">${opts(m.cp,"— brak —")}</select></label>
     </div>
     <div class="small muted">Opis transakcji (zaznacz kolumny do połączenia):</div>
-    <div class="checks">${I.header.map((hd,i)=>`<label><input type="checkbox" data-desc="${i}" ${m.desc.includes(i)?"checked":""}> ${esc(hd||("Kolumna "+(i+1)))}</label>`).join("")}</div>
+    <div class="checks">${I.header.map((hd,i)=>`<label><input type="checkbox" data-desc="${i}" ${m.desc.includes(i)?"checked":""}> ${esc(hd||("Kolumna "+(i+1)))}</label>`).join("")}</div>`}
     <div class="tablewrap"><table><thead><tr><th>Data</th><th>Opis</th><th>Kwota</th><th>Kategoria</th></tr></thead><tbody>${prev||`<tr><td colspan="4" class="muted">Nie rozpoznaję transakcji – popraw kolumny powyżej.</td></tr>`}</tbody></table></div>
     <div class="row spread">
       <span class="small muted">Rozpoznane: ${txs.length} · nowe: <b>${fresh.length}</b>${skipped?` · pominięte wiersze: ${skipped}`:""}</span>
@@ -691,6 +725,7 @@ document.addEventListener("click", e=>{
   if(a==="backup") downloadBackup();
   if(a==="restore") $("#bfile").click();
   if(a==="cancelimp"){ S.imp = null; render(); }
+  if(a==="manualmap"){ const m=S.imp.map; S.imp.map={date:m.date, date2:m.date2, amount:m.amount, debit:-1, credit:-1, cp:m.place, desc:m.desc.slice()}; render(); }
   if(a==="doimp") doImport();
   if(a==="delimp") confirmBox("Cofnąć ten import? Usunę wszystkie transakcje z tego pliku.", "Cofnij import", ()=>delImport(el.dataset.id));
   if(a==="deltx") delTx(el.dataset.id);
@@ -770,7 +805,8 @@ async function readFile(f){
     body = body.filter(r=>r.length>=2);
     const sig = sigOf(header);
     const saved = S.settings.mappings && S.settings.mappings[sig];
-    const map = saved ? JSON.parse(JSON.stringify(saved)) : guessMap(header, body.slice(0,40));
+    const ca = detectCA(header, body.slice(0,40));
+    const map = ca || (saved ? JSON.parse(JSON.stringify(saved)) : guessMap(header, body.slice(0,40)));
     S.imp = {name:f.name, header, rows:body, map, sig};
     if(S.view!=="import") location.hash="import"; else render();
   }catch(e){ flash("Nie udało się odczytać pliku. Upewnij się, że to plik CSV z banku."); }
