@@ -51,7 +51,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .status{font-size:12px;color:var(--muted)}
 nav.tabs{display:flex;gap:4px;overflow-x:auto}
-nav.tabs a{padding:8px 12px;border-radius:8px 8px 0 0;text-decoration:none;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent}
+nav.tabs a{padding:8px 10px;border-radius:8px 8px 0 0;text-decoration:none;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent}
 nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
 main{max-width:920px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -144,6 +144,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
     </div>
     <nav class="tabs" id="tabs">
       <a href="#przeglad" data-v="przeglad">Przegląd</a>
+      <a href="#podzial" data-v="podzial">Podział</a>
       <a href="#transakcje" data-v="transakcje">Transakcje</a>
       <a href="#import" data-v="import">Import</a>
       <a href="#kategorie" data-v="kategorie">Kategorie</a>
@@ -166,7 +167,8 @@ const DEFAULT_CATS = [
   {id:"warsztat", name:"Warsztat i materiały", color:"#b5542c", type:"expense", kw:["castorama","leroy merlin","obi","bricomarche","psb","mrówka","jula","hornbach","merkury market","häfele","hafele","blum","egger","kronopol","swiss krono","tartak","drewno","sklejka","płyty meblowe","okucia","galanteria meblowa","makita","festool","dewalt","würth","wurth","berner","narzędzia"]},
   {id:"miasto", name:"Jedzenie na mieście", color:"#d1497a", type:"expense", kw:["mcdonald","mcdonalds","kfc","burger king","pizzeria","pizza","restauracja","bistro","bar","pyszne","glovo","uber eats","wolt","kebab","starbucks","costa","kawiarnia","sushi","pierogarnia","north fish","subway","max premium burgers"]},
   {id:"zdrowie", name:"Zdrowie", color:"#1aa3a3", type:"expense", kw:["apteka","apteki","doz","ziko","gemini","super-pharm","lekarz","medicover","luxmed","lux med","enel-med","dentysta","stomatolog","przychodnia","optyk","szpital","rehabilitacja"]},
-  {id:"zakupy", name:"Zakupy", color:"#c08a1e", type:"expense", kw:["allegro","amazon","temu","aliexpress","shein","zalando","rossmann","hebe","action","pepco","media expert","rtv euro agd","euro-net","x-kom","morele","mediamarkt","media markt","ikea","jysk","decathlon","sinsay","reserved","cropp","house","ccc","deichmann","empik","smyk","tk maxx","kik","half price"]},
+  {id:"higiena", name:"Higiena i drogeria", color:"#5fb3a1", type:"expense", kw:["rossmann","hebe","drogeria","dm drogerie","natura","kosmetyki","chemia"]},
+  {id:"zakupy", name:"Zakupy", color:"#c08a1e", type:"expense", kw:["allegro","amazon","temu","aliexpress","shein","zalando","action","pepco","media expert","rtv euro agd","euro-net","x-kom","morele","mediamarkt","media markt","ikea","jysk","decathlon","sinsay","reserved","cropp","house","ccc","deichmann","empik","smyk","tk maxx","kik","half price"]},
   {id:"rozrywka", name:"Rozrywka i subskrypcje", color:"#9b59b6", type:"expense", kw:["netflix","spotify","youtube","disney","hbo","max.com","apple.com","itunes","google play","playstation","xbox","steam","canal+","player.pl","cinema city","multikino","helios","eventim","ebilet","openai","chatgpt","anthropic","claude.ai","steampowered","casino","totalcasino","lotto","sts","fortuna","superbet","betclic"]},
   {id:"transport", name:"Transport", color:"#4a90a4", type:"expense", kw:["pkp","intercity","koleo","polregio","jakdojade","mpk","ztm","bolt","uber","freenow","flixbus","skycash","mobilet","ryanair","wizz air","lot polish"]},
   {id:"ubezpieczenia", name:"Ubezpieczenia", color:"#5d7a8c", type:"expense", kw:["pzu","warta","allianz","hestia","ergo hestia","generali","link4","uniqa","compensa","aviva","nationale-nederlanden","ubezpieczenie","polisa"]},
@@ -176,11 +178,16 @@ const DEFAULT_CATS = [
   {id:"osoby", name:"Przelewy do osób", color:"#c4708f", type:"expense", kw:["przelew na telefon"]},
   {id:"bank", name:"Opłaty bankowe", color:"#8e8e8e", type:"expense", kw:["serwis tekstowy","opłata za sms","opłata za kartę","opłata za prowadzenie","prowizja"]},
   {id:"inne", name:"Inne", color:"#9aa5a1", type:"expense", kw:[]},
-  {id:"przelewy", name:"Przelewy własne", color:"#7d8ea3", type:"transfer", kw:["przelew własny","przelew wewnętrzny","przelew w ramach konta","między rachunkami","na rachunek własny","revolut"]},
-  {id:"inwestycje", name:"Inwestycje i oszczędności", color:"#3a8fb7", type:"transfer", kw:["xtb","rachunku oszczędnościowego","konto oszczędnościowe","oszczędności","lokata","obligacje","etoro","trading212"]},
+  {id:"przelewy", name:"Oszczędności i przelewy własne", color:"#7d8ea3", type:"transfer", kw:["przelew własny","przelew wewnętrzny","przelew w ramach konta","między rachunkami","na rachunek własny","rachunku oszczędnościowego","konto oszczędnościowe","oszczędności","lokata","revolut"]},
+  {id:"inwestycje", name:"Inwestycje", color:"#3a8fb7", type:"transfer", kw:["xtb","obligacje","etoro","trading212"]},
+  {id:"cel", name:"Odłożone na bliski cel", color:"#c08a1e", type:"transfer", kw:[]},
   {id:"przychody", name:"Wpływy", color:"#2f7d4f", type:"income", kw:["wynagrodzenie","pensja","wypłata","premia"]}
 ];
-function defaultSettings(){ return {v:3, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[]}; }
+const JAR_DEFAULT = {paliwo:"potrzeby",spozywcze:"potrzeby",dom:"potrzeby",telefon:"potrzeby",auto:"potrzeby",warsztat:"potrzeby",zdrowie:"potrzeby",higiena:"potrzeby",transport:"potrzeby",ubezpieczenia:"potrzeby",podatki:"potrzeby",bank:"potrzeby",
+  miasto:"luz",rozrywka:"luz",zakupy:"luz", kredyty:"dlugi", inwestycje:"inwestycje", przelewy:"oszczednosci", cel:"cel"};
+DEFAULT_CATS.forEach(c=>{ c.jar = JAR_DEFAULT[c.id]||""; });
+function defaultSplit(){ return {pct:{potrzeby:55,inwestycje:15,oszczednosci:15,luz:7.5,piaty:7.5}, hasDebt:false, goalName:"", goalTarget:0}; }
+function defaultSettings(){ return {v:4, cats: JSON.parse(JSON.stringify(DEFAULT_CATS)).map(c=>({...c,budget:0})), learned:{}, mappings:{}, imports:[], split: defaultSplit()}; }
 
 function norm(s){
   return String(s||"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();
@@ -476,7 +483,18 @@ function mergeSettings(s){
     if(pr){ pr.kw=(pr.kw||[]).filter(k=>!inv.kw.includes(k)); if(/oszcz/i.test(pr.name)) pr.name="Przelewy własne"; if(pr.color==="#b0b8b5") pr.color="#7d8ea3"; }
     recat = true;
   }
-  const out = { v:3, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[], balance: s.balance||null };
+  if((s.v||1) < 4){
+    const ins = (id, afterId) => { if(cats.some(c=>c.id===id)) return; const dc = JSON.parse(JSON.stringify(d.cats.find(c=>c.id===id))); const at = cats.findIndex(c=>c.id===afterId); cats.splice(at<0?cats.length:at+1,0,dc); };
+    ins("higiena","zdrowie"); ins("cel","inwestycje");
+    const zk = cats.find(c=>c.id==="zakupy"); if(zk) zk.kw=(zk.kw||[]).filter(k=>k!=="rossmann"&&k!=="hebe");
+    const savings = ["rachunku oszczędnościowego","konto oszczędnościowe","oszczędności","lokata"];
+    const inv = cats.find(c=>c.id==="inwestycje"); if(inv){ inv.kw=(inv.kw||[]).filter(k=>!savings.includes(k)); if(inv.name==="Inwestycje i oszczędności") inv.name="Inwestycje"; }
+    const pr = cats.find(c=>c.id==="przelewy"); if(pr){ for(const k of savings) if(!pr.kw.includes(k)) pr.kw.push(k); if(pr.name==="Przelewy własne") pr.name="Oszczędności i przelewy własne"; }
+    for(const c of cats) if(c.jar===undefined) c.jar = JAR_DEFAULT[c.id]||"";
+    recat = true;
+  }
+  const sp = Object.assign(defaultSplit(), s.split||{}); sp.pct = Object.assign(defaultSplit().pct, (s.split&&s.split.pct)||{});
+  const out = { v:4, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[], balance: s.balance||null, split: sp };
   if(recat) out._recat = true;
   return out;
 }
@@ -499,7 +517,7 @@ function enterDemo(){
 // ---------- routing ----------
 function route(){
   const h = location.hash.replace("#","");
-  S.view = ["przeglad","transakcje","import","kategorie"].includes(h) ? h : "przeglad";
+  S.view = ["przeglad","podzial","transakcje","import","kategorie"].includes(h) ? h : "przeglad";
 }
 window.addEventListener("hashchange",()=>{ route(); render(); window.scrollTo(0,0); });
 
@@ -528,6 +546,7 @@ function render(){
   if(S.err) h += `<div class="banner warn">${esc(S.err)}</div>`;
   if(S.demo) h += `<div class="banner">To są <b>przykładowe dane</b>, żebyś zobaczył jak to działa. Zaimportuj wyciąg CSV z banku w zakładce <a href="#import">Import z banku</a>, a przykłady znikną.</div>`;
   if(S.view==="przeglad") h += viewOverview();
+  if(S.view==="podzial") h += viewSplit();
   if(S.view==="transakcje") h += viewTx();
   if(S.view==="import") h += viewImport();
   if(S.view==="kategorie") h += viewCats();
@@ -546,12 +565,13 @@ function monthBar(){
   </div>`;
 }
 
-function donut(per, total, label){
+function donut(per, total, label, look){
+  look = look || catById;
   const R=70, C=2*Math.PI*R; let off=0, segs="";
   const entries = Object.entries(per).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   for(const [id,v] of entries){
     const len = total>0 ? v/total*C : 0;
-    segs += `<circle r="${R}" cx="90" cy="90" fill="none" stroke="${catById(id).color}" stroke-width="22" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 90 90)"><title>${esc(catById(id).name)}: ${PLN.format(v)}</title></circle>`;
+    segs += `<circle r="${R}" cx="90" cy="90" fill="none" stroke="${look(id).color}" stroke-width="22" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 90 90)"><title>${esc(look(id).name)}: ${PLN.format(v)}</title></circle>`;
     off += len;
   }
   return `<svg viewBox="0 0 180 180" width="100%" role="img" aria-label="Podział wydatków">
@@ -619,6 +639,90 @@ function transferCard(st){
   </div>`;
 }
 
+const JAR_OPTS = [["","— nie liczy się do podziału —"],["potrzeby","Najpotrzebniejsze"],["inwestycje","Inwestycje"],["oszczednosci","Oszczędności"],["luz","Na luzie"],["dlugi","Długi"],["cel","Bliski cel"]];
+function jarList(){
+  const sp = S.settings.split || defaultSplit(); const p = sp.pct;
+  return [
+    {id:"potrzeby", key:"potrzeby", name:"Najpotrzebniejsze", hint:"dom, paliwo, jedzenie, higiena", color:"#2f9e6b", pct:+p.potrzeby||0, save:false},
+    {id:"inwestycje", key:"inwestycje", name:"Inwestycje", hint:"XTB, obligacje", color:"#3a8fb7", pct:+p.inwestycje||0, save:true},
+    {id:"oszczednosci", key:"oszczednosci", name:"Oszczędności", hint:"konto oszczędnościowe", color:"#7d8ea3", pct:+p.oszczednosci||0, save:true},
+    {id:"luz", key:"luz", name:"Na luzie", hint:"care free – na co chcesz", color:"#d1497a", pct:+p.luz||0, save:false},
+    sp.hasDebt ? {id:"dlugi", key:"piaty", name:"Długi", hint:"raty i spłaty", color:"#a0522d", pct:+p.piaty||0, save:false}
+               : {id:"cel", key:"piaty", name:"Bliski cel", hint:sp.goalName||"np. nowy mebel, części do komputera", color:"#c08a1e", pct:+p.piaty||0, save:true}
+  ];
+}
+function splitStats(ym){
+  const items = S.months[ym]||[]; const jars = jarList(); const active = new Set(jars.map(j=>j.id));
+  const incomes = items.filter(t=>catById(t.cat).type==="income" && t.amount>0).sort((a,b)=>a.date.localeCompare(b.date));
+  const income = incomes.reduce((a,t)=>a+t.amount,0);
+  const act = {}; let un = 0; const unCats = {};
+  for(const t of items){
+    const c = catById(t.cat); if(c.type==="income") continue;
+    if(c.jar && active.has(c.jar)) act[c.jar] = (act[c.jar]||0) - t.amount;
+    else if(c.type==="expense"){ un -= t.amount; unCats[c.id] = (unCats[c.id]||0) - t.amount; }
+  }
+  return {jars, incomes, income, act, un, unCats};
+}
+function viewSplit(){
+  const sp = S.settings.split; const jars = jarList();
+  const sum = jars.reduce((a,j)=>a+j.pct,0);
+  const settings = `<div class="card">
+    <h2>Ustawienia podziału</h2>
+    <p class="muted small" style="margin:0">Każdy wpływ (np. wypłata) dzielę według tych procentów. Którą kategorię wliczam do której części, ustawisz w zakładce <a href="#kategorie">Kategorie</a>.</p>
+    <div class="maps">${jars.map(j=>`<label for="sp-${j.key}"><span><span class="dot" style="display:inline-block;background:${j.color}"></span> ${esc(j.name)} (%)</span><input type="number" id="sp-${j.key}" data-split="${j.key}" min="0" max="100" step="0.5" value="${j.pct}"></label>`).join("")}</div>
+    ${Math.abs(sum-100)>0.001?`<div class="banner warn">Procenty sumują się do ${String(Math.round(sum*100)/100).replace(".",",")}%, a powinny do 100%.</div>`:""}
+    <label class="row small" style="gap:8px"><input type="checkbox" id="hasdebt" ${sp.hasDebt?"checked":""}> Mam długi do spłaty (piąta część idzie na długi zamiast na bliski cel)</label>
+    ${sp.hasDebt?"":`<div class="maps">
+      <label for="goalname">Na co odkładasz (bliski cel)<input type="text" id="goalname" value="${esc(sp.goalName)}" placeholder="np. nowy mebel, części do komputera"></label>
+      <label for="goaltarget">Ile potrzebujesz (zł, opcjonalnie)<input type="number" id="goaltarget" min="0" step="50" value="${+sp.goalTarget||0}"></label>
+    </div>${goalProgress()}`}
+  </div>`;
+  if(!S.month) return settings;
+  const st = splitStats(S.month);
+  let main;
+  if(st.income<=0){
+    main = `<div class="card"><h2>Podział wpływów</h2><p class="muted">W tym miesiącu nie ma jeszcze żadnych wpływów do podzielenia.</p></div>`;
+  } else {
+    const per = {}; jars.forEach(j=>{ if(j.pct>0) per[j.id]=st.income*j.pct/100; });
+    const look = id => jars.find(j=>j.id===id) || {name:id,color:"#999"};
+    const rows = jars.map(j=>{
+      const alloc = st.income*j.pct/100, a = Math.round((st.act[j.id]||0)*100)/100;
+      let chip;
+      if(j.save) chip = a >= alloc-0.005 ? `<span class="chip good">odłożone w całości</span>` : `<span class="chip warn">brakuje ${PLN.format(alloc-a)}</span>`;
+      else chip = a > alloc+0.005 ? `<span class="chip crit">ponad plan o ${PLN.format(a-alloc)}</span>` : a > alloc*0.8 ? `<span class="chip warn">zostało ${PLN.format(alloc-a)}</span>` : `<span class="chip good">zostało ${PLN.format(alloc-a)}</span>`;
+      const w = alloc>0 ? Math.min(100, Math.max(0,a)/alloc*100) : 0;
+      return `<div class="catrow" style="cursor:default">
+        <span class="name"><span class="dot" style="background:${j.color}"></span>${esc(j.name)} <span class="muted small">${String(j.pct).replace(".",",")}%</span></span>
+        <span class="num"><b>${PLN.format(alloc)}</b></span>
+        <div class="bar"><i style="width:${w}%;background:${!j.save&&a>alloc?"var(--crit)":j.color}"></i></div>
+        <span class="small muted" style="grid-column:1 / -1">${esc(j.hint)} · ${j.save?"odłożone":"wydane"} ${PLN.format(a)} ${chip}</span>
+      </div>`;
+    }).join("");
+    const unList = Object.entries(st.unCats).filter(([,v])=>Math.abs(v)>0.004).sort((a,b)=>b[1]-a[1]).map(([id,v])=>`${esc(catById(id).name)} ${PLN.format(v)}`).join(", ");
+    main = `<div class="card">
+      <h2>Podział wpływów</h2>
+      <div class="split">${donut(per, st.income, "wpływy", look)}<div class="catlist">${rows}</div></div>
+      ${st.un>0.004?`<p class="small muted" style="margin:0">Poza podziałem: <b>${PLN.format(st.un)}</b> (${unList}). Przypisz te kategorie do którejś części w zakładce <a href="#kategorie">Kategorie</a>.</p>`:""}
+    </div>
+    <div class="card">
+      <h2>Wpływy w tym miesiącu</h2>
+      <div class="txlist">${st.incomes.map(t=>`<div class="tx" style="grid-template-columns:62px 1fr auto">
+        <div class="d num">${t.date.slice(8,10)}.${t.date.slice(5,7)}</div>
+        <div class="t"><div class="cp">${esc(t.cp||t.desc)}</div></div>
+        <div class="a num plus">+${PLN.format(t.amount)}</div>
+        <div class="ctl small">${jars.filter(j=>j.pct>0).map(j=>`<span class="row" style="gap:4px"><span class="dot" style="background:${j.color}"></span>${esc(j.name)} <b class="num">${PLN.format(t.amount*j.pct/100)}</b></span>`).join("")}</div>
+      </div>`).join("")}</div>
+    </div>`;
+  }
+  return `<div class="row spread">${monthBar()}</div>${main}${settings}`;
+}
+function goalProgress(){
+  const sp = S.settings.split; const t = +sp.goalTarget||0;
+  let saved = 0; for(const x of allTx()){ const c = catById(x.cat); if(c.jar==="cel") saved -= x.amount; }
+  if(t<=0 && saved<=0) return `<p class="small muted" style="margin:0">Przelewając pieniądze na cel (np. na drugie konto), ustaw tej transakcji kategorię „Odłożone na bliski cel”. Wtedy zobaczysz tu postęp.</p>`;
+  const pct = t>0 ? Math.min(100, saved/t*100) : 0;
+  return `<div class="catrow" style="cursor:default"><span class="name">Odłożone na cel</span><span class="num"><b>${PLN.format(saved)}</b>${t>0?` z ${PLN.format(t)}`:""}</span>${t>0?`<div class="bar"><i style="width:${pct}%;background:#c08a1e"></i></div>`:""}</div>`;
+}
 function catOptions(sel, withAll){
   return (withAll?`<option value="">Wszystkie kategorie</option>`:"") + S.settings.cats.map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join("");
 }
@@ -722,6 +826,7 @@ function viewCats(){
         <input type="text" value="${esc(c.name)}" data-cf="name" data-i="${i}" aria-label="Nazwa kategorii">
         <label class="bud row small muted" style="gap:6px">limit <input type="number" min="0" step="10" value="${+c.budget||0}" data-cf="budget" data-i="${i}" style="width:90px" aria-label="Limit miesięczny"> zł</label>
         <span class="del">${["inne","przychody","przelewy"].includes(c.id)?`<span class="muted small">${c.type==="income"?"wpływy":c.type==="transfer"?"nie liczy się do wydatków":"domyślna"}</span>`:`<button class="btn ghost small" data-act="delcat" data-i="${i}">Usuń</button>`}</span>
+        ${c.type==="income"?"":`<label class="row small muted" style="gap:6px;grid-column:2 / -1">część podziału <select data-cf="jar" data-i="${i}" aria-label="Część podziału">${JAR_OPTS.map(([v,n])=>`<option value="${v}" ${((c.jar||"")===v)?"selected":""}>${n}</option>`).join("")}</select></label>`}
         ${c.id==="inne"?"":`<textarea rows="2" data-cf="kw" data-i="${i}" aria-label="Słowa kluczowe">${esc((c.kw||[]).join(", "))}</textarea>`}
       </div></div>`).join("")}</div>
     <div class="row"><button class="btn primary" data-act="recat">Przelicz kategorie wszystkich transakcji</button><span class="muted small">Twoje ręczne zmiany zostaną zachowane.</span></div>
@@ -735,6 +840,10 @@ function viewCats(){
 
 // ---------- akcje ----------
 function afterRender(){
+  document.querySelectorAll("[data-split]").forEach(inp=>inp.onchange=()=>{ S.settings.split.pct[inp.dataset.split] = Math.max(0, parseFloat(String(inp.value).replace(",","."))||0); touchSettings(); render(); });
+  const hd = $("#hasdebt"); if(hd) hd.onchange = () => { S.settings.split.hasDebt = hd.checked; touchSettings(); render(); };
+  const gn = $("#goalname"); if(gn) gn.onchange = () => { S.settings.split.goalName = gn.value.trim(); touchSettings(); render(); };
+  const gt = $("#goaltarget"); if(gt) gt.onchange = () => { S.settings.split.goalTarget = Math.max(0, parseFloat(gt.value)||0); touchSettings(); render(); };
   const q = $("#q");
   if(q){ q.oninput = () => { S.q = q.value; const pos=q.selectionStart; render(); const n=$("#q"); n.focus(); n.setSelectionRange(pos,pos); }; }
   const fc = $("#fcat"); if(fc) fc.onchange = () => { S.cat = fc.value; render(); };
