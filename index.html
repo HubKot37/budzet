@@ -70,7 +70,9 @@ input[type=text],input[type=number],input[type=date],input[type=search],select,t
 textarea{width:100%;resize:vertical}
 .banner{border-radius:10px;padding:10px 14px;font-size:14px;border:1px solid var(--line);background:var(--accent-soft)}
 .banner.warn{background:transparent;border-color:var(--warn)}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile.acc{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tile.acc .lbl{color:inherit;opacity:.85}
 .tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .tile .lbl{font-size:13px;color:var(--muted)}
 .tile .val{font-family:var(--display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -124,7 +126,7 @@ td.r{text-align:right}
 ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 @media (max-width:640px){
   .tiles{grid-template-columns:1fr 1fr}
-  .tiles .tile:last-child{grid-column:1 / -1}
+  .tiles .tile.acc,.tiles .tile:last-child{grid-column:1 / -1}
   .split{grid-template-columns:1fr}
   .split svg{max-width:180px;margin:0 auto}
   .catedit{grid-template-columns:34px 1fr}
@@ -290,7 +292,7 @@ function detectCA(header, sample){
   let amount=-1, best=-1;
   for(const i of kw){ const c = sample.filter(r=>!isNaN(parseAmount(r[i]))).length; if(c>best){best=c;amount=i;} }
   return {preset:"ca", date:at("data operacji"), date2:at("data ksiegowania"), amount, debit:-1, credit:-1, cp:-1,
-    www:at("adres www sklepu"), place:at("miejsce transakcji"), payee:at("odbiorca"), payer:at("nadawca"), op:at("operacja"),
+    bal:at("saldo po operacji"), dt:at("data ksiegowania"), www:at("adres www sklepu"), place:at("miejsce transakcji"), payee:at("odbiorca"), payer:at("nadawca"), op:at("operacja"),
     desc:[at("kategoria transakcji"), at("tytul"), at("opis")].filter(i=>i>-1)};
 }
 function guessMap(header, sample){
@@ -306,6 +308,8 @@ function guessMap(header, sample){
   n.forEach((c,i)=>{ if(i!==map.date && HDR.date.test(c) && map.date2<0 && fill(i,parseDate)>0) map.date2=i; });
   map.amount = bestOf(HDR.amount, HDR.skip, isAmt);
   if(map.amount>-1 && fill(map.amount,isAmt)===0) map.amount=-1;
+  map.bal = bestOf(/saldo/, null, isAmt); if(map.bal>-1 && fill(map.bal,isAmt)===0) map.bal=-1;
+  map.dt = map.date2>-1 && /ksieg/.test(n[map.date2]) ? map.date2 : map.date;
   if(map.amount<0){ map.debit=bestOf(HDR.debit,HDR.skip,isAmt); map.credit=bestOf(HDR.credit,HDR.skip,isAmt); }
   map.cp = find(HDR.cp, HDR.skip);
   n.forEach((c,i)=>{ if(HDR.desc.test(c) && !HDR.skip.test(c) && i!==map.cp && i!==map.date && i!==map.amount) map.desc.push(i); });
@@ -323,6 +327,11 @@ function guessMap(header, sample){
   }
   return map;
 }
+function parseDateTime(s){
+  const d = parseDate(s); if(!d) return null;
+  const t = String(s).match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  return d+" "+(t ? t[1].padStart(2,"0")+":"+t[2]+":"+(t[3]||"00") : "00:00:00");
+}
 function hash(str){
   let h1=0xdeadbeef, h2=0x41c6ce57;
   for(let i=0;i<str.length;i++){ const c=str.charCodeAt(i); h1=Math.imul(h1^c,2654435761); h2=Math.imul(h2^c,1597334677); }
@@ -331,7 +340,10 @@ function hash(str){
   return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);
 }
 function buildTxs(rows, map){
-  const out=[]; let skipped=0; const seen={};
+  const out=[]; let skipped=0; const seen={}; const bals=[];
+  rows.forEach((r,idx)=>{
+    if(map.bal>-1){ const b=parseAmount(r[map.bal]); const at=parseDateTime(r[map.dt>-1?map.dt:map.date]) || parseDateTime(r[map.date]); if(!isNaN(b) && at) bals.push({b,at,idx}); }
+  });
   for(const r of rows){
     const date = parseDate(r[map.date]) || (map.date2>-1 ? parseDate(r[map.date2]) : null);
     let amount;
@@ -353,7 +365,14 @@ function buildTxs(rows, map){
     seen[base]=(seen[base]||0)+1;
     out.push({id: hash(base+"#"+seen[base]), date, amount: Math.round(amount*100)/100, cp: cp.slice(0,120), desc: desc.slice(0,240)});
   }
-  return {txs:out, skipped};
+  let balance = null;
+  if(bals.length){
+    const desc = bals[0].at >= bals[bals.length-1].at;
+    let best = bals[0];
+    for(const x of bals){ if(x.at > best.at || (x.at===best.at && !desc && x.idx>best.idx)) best = x; }
+    balance = {amount: Math.round(best.b*100)/100, at: best.at};
+  }
+  return {txs:out, skipped, balance};
 }
 function sigOf(header){ return hash(header.map(norm).join("|")); }
 /*CORE-END*/
@@ -415,7 +434,7 @@ async function restoreBackup(f){
 function saveMonth(ym){ save("m-"+ym); }
 function leaveDemo(){
   if(!S.demo) return;
-  S.demo = false; S.months = {};
+  S.demo = false; S.months = {}; S.settings.balance = null;
   save("settings");
 }
 function setStatus(){
@@ -446,7 +465,7 @@ function mergeSettings(s){
       else { const set = new Set(c.kw||[]); for(const k of dc.kw) set.add(k); if(c.id==="przychody") set.delete("zwrot"); c.kw=[...set]; if(c.id==="przelewy"&&c.name==="Przelewy własne") c.name=dc.name; }
     }
   }
-  return { v:2, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[] };
+  return { v:2, cats, learned: s.learned||{}, mappings: s.mappings||{}, imports: s.imports||[], balance: s.balance||null };
 }
 function enterDemo(){
   S.demo = true; S.settings = defaultSettings(); S.months = {};
@@ -460,6 +479,7 @@ function enterDemo(){
     [16,-889.00,"HAFELE POLSKA","Okucia, zawiasy"],[17,-27.40,"APTEKA DOZ","Płatność kartą"],[18,-152.77,"KAUFLAND","Płatność kartą"],[19,-75.00,"Jan Kowalski","Za drewno sosnowe"]
   ];
   S.months[ym] = demo.map((r,i)=>{ const t={id:"demo"+i,date:day(r[0]),amount:r[1],cp:r[2],desc:r[3],src:"demo"}; t.cat=categorize(t,S.settings); return t; });
+  S.settings.balance = {amount: 2431.55, at: day(19)+" 18:00:00"};
   S.month = ym;
 }
 
@@ -554,6 +574,7 @@ function viewOverview(){
   return `
   <div class="row spread">${monthBar()}<a class="btn" href="#import">+ Importuj wyciąg</a></div>
   <div class="tiles">
+    ${S.settings.balance?`<div class="tile acc"><div class="lbl">Na koncie</div><div class="val">${PLN.format(S.settings.balance.amount)}</div><div class="lbl small">stan na ${esc(S.settings.balance.at.slice(8,10)+"."+S.settings.balance.at.slice(5,7)+"."+S.settings.balance.at.slice(0,4)+", "+S.settings.balance.at.slice(11,16))}</div></div>`:""}
     <div class="tile"><div class="lbl">Wydatki</div><div class="val">${PLN0.format(st.spent)}</div></div>
     <div class="tile"><div class="lbl">Wpływy</div><div class="val">${PLN0.format(st.income)}</div></div>
     <div class="tile"><div class="lbl">Bilans miesiąca</div><div class="val" style="color:${bal>=0?"var(--good)":"var(--crit)"}">${bal>=0?"+":""}${PLN0.format(bal)}</div></div>
@@ -634,7 +655,7 @@ function viewImport(){
 function viewMapping(){
   const I = S.imp; const m = I.map;
   const opts = (v, none) => (none?`<option value="-1">${none}</option>`:"") + I.header.map((hd,i)=>`<option value="${i}" ${+v===i?"selected":""}>${esc(hd||("Kolumna "+(i+1)))}</option>`).join("");
-  const {txs, skipped} = buildTxs(I.rows, m);
+  const {txs, skipped, balance} = buildTxs(I.rows, m);
   const existing = new Set(allTx().map(t=>t.id));
   const fresh = S.demo ? txs : txs.filter(t=>!existing.has(t.id));
   const prev = txs.slice(0,8).map(t=>{ const c=catById(categorize(t,S.settings)); return `<tr><td class="num">${t.date}</td><td>${esc((t.cp||t.desc).slice(0,48))}</td><td class="r num">${PLN.format(t.amount)}</td><td><span class="dot" style="display:inline-block;background:${c.color}"></span> ${esc(c.name)}</td></tr>`; }).join("");
@@ -653,7 +674,7 @@ function viewMapping(){
     <div class="checks">${I.header.map((hd,i)=>`<label><input type="checkbox" data-desc="${i}" ${m.desc.includes(i)?"checked":""}> ${esc(hd||("Kolumna "+(i+1)))}</label>`).join("")}</div>`}
     <div class="tablewrap"><table><thead><tr><th>Data</th><th>Opis</th><th>Kwota</th><th>Kategoria</th></tr></thead><tbody>${prev||`<tr><td colspan="4" class="muted">Nie rozpoznaję transakcji – popraw kolumny powyżej.</td></tr>`}</tbody></table></div>
     <div class="row spread">
-      <span class="small muted">Rozpoznane: ${txs.length} · nowe: <b>${fresh.length}</b>${skipped?` · pominięte wiersze: ${skipped}`:""}</span>
+      <span class="small muted">${balance?`Saldo na koncie: <b>${PLN.format(balance.amount)}</b> · `:""}Rozpoznane: ${txs.length} · nowe: <b>${fresh.length}</b>${skipped?` · pominięte wiersze: ${skipped}`:""}</span>
       <button class="btn primary" data-act="doimp" ${fresh.length?"":"disabled"}>Importuj ${fresh.length} transakcji</button>
     </div>
   </div>`;
@@ -812,7 +833,7 @@ async function readFile(f){
   }catch(e){ flash("Nie udało się odczytać pliku. Upewnij się, że to plik CSV z banku."); }
 }
 function doImport(){
-  const I = S.imp; const {txs} = buildTxs(I.rows, I.map);
+  const I = S.imp; const {txs, balance} = buildTxs(I.rows, I.map);
   leaveDemo();
   const existing = new Set(allTx().map(t=>t.id));
   const impId = "i"+Date.now().toString(36);
@@ -823,6 +844,7 @@ function doImport(){
     const ym = t.date.slice(0,7);
     (S.months[ym] = S.months[ym]||[]).push(t); touched.add(ym); n++;
   }
+  if(balance && (!S.settings.balance || balance.at >= S.settings.balance.at)) S.settings.balance = balance;
   S.settings.mappings[I.sig] = I.map;
   S.settings.imports.push({id:impId, at:new Date().toISOString(), file:I.name, count:n});
   if(S.settings.imports.length>60) S.settings.imports = S.settings.imports.slice(-60);
